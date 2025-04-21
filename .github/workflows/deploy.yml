@@ -27,11 +27,7 @@ jobs:
       - name: Create deployment package
         run: |
           # Zip dependencies first
-          cd src/python && zip -r ../../deployment.zip .
-          # Then add your Lambda function
-          cd src && zip -g ../deployment.zip lambda_function.py
-          # Add other files if needed (configs, etc.)
-          # zip -g ../deployment.zip *.json
+          zip -r deployment.zip .
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
