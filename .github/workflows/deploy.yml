@@ -7,6 +7,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # env:
+    #   LAMBDA_FUNCTION_NAME: ${{ vars.LAMBDA_FUNCTION_NAME  }}
 
     steps:
       - name: Checkout code
@@ -19,8 +21,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          mkdir -p src/package
-          pip install -r src/requirements.txt -t src/package
+
+          mkdir -p lambda_package
+          cp src/lambda_function.py lambda_package/
+          pip install -r src/requirements.txt -t lambda_package/python
+          cd lambda_package && zip -r ../deployment.zip 
 
       - name: Create deployment package
         run: |
