@@ -1,0 +1,48 @@
+name: Deploy Python Lambda
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'src/**'  # Only trigger when files in src/ change
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'  # Match your Lambda runtime
+
+      - name: Install dependencies
+        run: |
+          mkdir -p src/package
+          pip install -r src/requirements.txt -t src/package
+
+      - name: Create deployment package
+        run: |
+          cd src
+          # Zip dependencies first
+          cd package && zip -r ../../deployment.zip . && cd ..
+          # Then add your Lambda function
+          zip -g ../deployment.zip lambda_function.py
+          # Add other files if needed (configs, etc.)
+          # zip -g ../deployment.zip *.json
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy to Lambda
+        run: |
+          aws lambda update-function-code \
+            --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
+            --zip-file fileb://deployment.zip
