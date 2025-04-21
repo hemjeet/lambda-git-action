@@ -21,17 +21,15 @@ jobs:
 
       - name: Install dependencies
         run: |
-
-          mkdir -p lambda_package
-          cp src/lambda_function.py lambda_package/
-          pip install -r src/requirements.txt -t lambda_package/python
-          cd lambda_package && zip -r ../deployment.zip 
+          mkdir -p src/python
+          pip install -r src/requirements.txt -t src/python
 
       - name: Create deployment package
         run: |
           cd src
+          rm -f deployment.zip
           # Zip dependencies first
-          cd package && zip -r ../../deployment.zip . && cd ..
+          cd python && zip -r ../../deployment.zip . && cd ..
           # Then add your Lambda function
           zip -g ../deployment.zip lambda_function.py
           # Add other files if needed (configs, etc.)
