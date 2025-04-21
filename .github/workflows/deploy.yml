@@ -26,12 +26,13 @@ jobs:
 
       - name: Create deployment package
         run: |
-          cd src
           rm -f deployment.zip
           # Zip dependencies first
-          cd python && zip -r ../../deployment.zip . && cd ..
+          cd src/python && zip -r ../../deployment.zip .
           # Then add your Lambda function
-          zip -g ../deployment.zip lambda_function.py
+          cd src && zip -g ../deployment.zip lambda_function.py
+          echo "Final zip contents:"
+          unzip -l deployment.zip
           # Add other files if needed (configs, etc.)
           # zip -g ../deployment.zip *.json
 
